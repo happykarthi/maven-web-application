@@ -1,10 +1,17 @@
-node {
+node('walmartnode'){
+
+try{
+
+  slackNotifications('STARTED')
 def mavenHome = tool name: 'maven3.8.6'
+
 echo "The branch name is :${env.BRANCH_NAME}" 
 echo "the node name is ;${env.NODE_NAME}"
 echo "the Job name is :${env.JOB_NAME}"
 echo "The build number is :${env.BUILD_NUMBER}" 
+
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '1', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+
 stage('CheckOutCode'){
 git branch: 'development', credentialsId: '8d34fcf4-2757-4d3c-958b-ac460c0b7b71', url: 'https://github.com/happykarthi/maven-web-application.git'
 }
@@ -23,6 +30,14 @@ sshagent(['5b62a22c-0228-4609-b6a2-3182e803b5be']) {
 sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.43.64:/opt/apache-tomcat-9.0.67/webapps/"
 }
 }
+}//try closing
+  catch(e){
+  currentBuild.result="FAILURE"
+  throw e
+  }//catch closing
+  finally{
+  slackNotifications(currentBuild.result)
+  }
 }// node closing 
 
 // Default values
