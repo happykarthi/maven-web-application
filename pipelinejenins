@@ -4,13 +4,13 @@ try{
 
   slackNotifications('STARTED')
 def mavenHome = tool name: 'maven3.8.6'
-
-echo "The branch name is :${env.BRANCH_NAME}" 
-echo "the node name is ;${env.NODE_NAME}"
-echo "the Job name is :${env.JOB_NAME}"
-echo "The build number is :${env.BUILD_NUMBER}" 
+ 
+ echo "The JobName is: ${env.JOB_NAME}" 
+ echo "The node name is: ${env.NODE_NAME}"
+ echo "The build number is: ${env.BUILD_NUMBER}"
 
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '1', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+
 
 stage('CheckOutCode'){
 git branch: 'development', credentialsId: '8d34fcf4-2757-4d3c-958b-ac460c0b7b71', url: 'https://github.com/happykarthi/maven-web-application.git'
@@ -47,8 +47,9 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@17
   }
 }// node closing 
 
+//Code Snippet for sending slack notifications.
+
 def slackNotifications(String buildStatus = 'STARTED') {
-  
   // build status of null means successful
   buildStatus =  buildStatus ?: 'SUCCESS'
   //buildStatus = buildStatus ? "SUCCESS":"FAILURE"
