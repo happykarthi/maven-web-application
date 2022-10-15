@@ -1,17 +1,10 @@
-node{
-
-try{
-
-  slackNotifications('STARTED')
+node {
 def mavenHome = tool name: 'maven3.8.6'
- 
- echo "The JobName is: ${env.JOB_NAME}" 
- echo "The node name is: ${env.NODE_NAME}"
- echo "The build number is: ${env.BUILD_NUMBER}"
-
+echo "The branch name is :${env.BRANCH_NAME}" 
+echo "the node name is ;${env.NODE_NAME}"
+echo "the Job name is :${env.JOB_NAME}"
+echo "The build number is :${env.BUILD_NUMBER}" 
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '1', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
-
-
 stage('CheckOutCode'){
 git branch: 'development', credentialsId: '8d34fcf4-2757-4d3c-958b-ac460c0b7b71', url: 'https://github.com/happykarthi/maven-web-application.git'
 }
@@ -19,59 +12,15 @@ git branch: 'development', credentialsId: '8d34fcf4-2757-4d3c-958b-ac460c0b7b71'
 stage('Build'){
 sh "${mavenHome}/bin/mvn clean package"
 }
-
-/*
-stage('executeSonarQubeReport')
-{
+stage('executeSonarQubeReport'){
 sh "${mavenHome}/bin/mvn clean sonar:sonar"
 }
-
-stage('UploadArtifactsintoNexus')
-{
+stage('UploadArtifactsintoNexus'){
 sh "${mavenHome}/bin/mvn clean deploy"
 }
-
 stage('DeployAppintoTomcatServer'){
 sshagent(['5b62a22c-0228-4609-b6a2-3182e803b5be']) {
 sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.43.64:/opt/apache-tomcat-9.0.67/webapps/"
 }
 }
-*/
-}//try closing
-  catch(e){
-  currentBuild.result="FAILURE"
-  throw e
-  }//catch closing
-  finally{
-  slackNotifications(currentBuild.result)
-  }
-}// node closing 
-
-//Code Snippet for sending slack notifications.
-
-def slackNotifications(String buildStatus = 'STARTED') {
-  // build status of null means successful
-  buildStatus =  buildStatus ?: 'SUCCESS'
-  //buildStatus = buildStatus ? "SUCCESS":"FAILURE"
-
-  // Default values
-  def colorName = 'RED'
-  def colorCode = '#FF0000'
-  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-  def summary = "${subject} (${env.BUILD_URL})"
-
-  // Override default values based on build status
-  if (buildStatus == 'STARTED') {
-    colorName = 'ORANGE'
-    colorCode = '#FFA500'
-  } else if (buildStatus == 'SUCCESS') {
-    colorName = 'GREEN'
-    colorCode = '#00FF00'
-  } else {
-    colorName = 'RED'
-    colorCode = '#FF0000'
-  }
-
-  // Send notifications
-  slackSend (color: colorCode, message: summary, channel: "#walmart")
 }
