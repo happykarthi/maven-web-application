@@ -1,4 +1,4 @@
-node ('amazonnode'){
+node ('node'){
 
 try{
 
