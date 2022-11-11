@@ -6,7 +6,7 @@ try{
 sendSlackNotifications('STARTED')
 def mavenHome = tool name: 'maven3.8.6'
 
-echo "The branch name is :${env.BRANCH_NAME}" 
+echo "The branch name is nn :${env.BRANCH_NAME}" 
 echo "the node name is ;${env.NODE_NAME}"
 echo "the Job name is :${env.JOB_NAME}"
 echo "The build number is :${env.BUILD_NUMBER}" 
